@@ -1,0 +1,27 @@
+name: Sync Diagnostics Logs
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Validate GitHub Token
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user || exit 1
+
+      - name: Sync Logs
+        run: |
+          mkdir -p logs
+          cp /storage/emulated/0/Documents/*.txt logs/
+          git config user.name "Lucas Krankowski"
+          git config user.email "lucas@example.com"
+          git add logs/
+          git commit -m "Auto-sync diagnostics logs"
+          git push
